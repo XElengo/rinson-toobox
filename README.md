@@ -3,7 +3,7 @@
 
 这是我自己写的小工具啦。功能干净，无广告，无后端，放心使用。
 
-用到的框架：uni-app
+用到的框架：uni-app  https://uniapp.dcloud.net.cn/
 
 语音文件来自：https://ttsmaker.com/
 
