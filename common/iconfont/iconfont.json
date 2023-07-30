@@ -1,0 +1,44 @@
+{
+  "id": "4187179",
+  "name": "百宝箱",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "2581709",
+      "name": "账号密码",
+      "font_class": "zhanghaomima",
+      "unicode": "e978",
+      "unicode_decimal": 59768
+    },
+    {
+      "icon_id": "5171987",
+      "name": "哑铃",
+      "font_class": "yaling",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "5387972",
+      "name": "账单_新增_o",
+      "font_class": "zhangdan_xinzeng_o",
+      "unicode": "eba3",
+      "unicode_decimal": 60323
+    },
+    {
+      "icon_id": "5387975",
+      "name": "账单_o",
+      "font_class": "zhangdan_o",
+      "unicode": "eba4",
+      "unicode_decimal": 60324
+    },
+    {
+      "icon_id": "25320119",
+      "name": "仰卧起坐",
+      "font_class": "yangwoqizuo",
+      "unicode": "e639",
+      "unicode_decimal": 58937
+    }
+  ]
+}
