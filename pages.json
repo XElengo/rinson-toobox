@@ -1,9 +1,9 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "rinson.百宝箱",
+				"navigationBarTitleText": "rinson百宝箱",
 				// "navigationStyle": "custom",
 				"titleAlign": "left",
 				"app-plus": {
@@ -13,7 +13,7 @@
 							"type": "menu",
 							"fontSize": "16px"
 						}]
-					} //禁用原生导航栏
+					} 
 				}
 			}
 		}, {
