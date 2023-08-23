@@ -1,6 +1,6 @@
 <template>
 	<view>
-		
+		账户管理工具开发中
 	</view>
 </template>
 

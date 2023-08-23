@@ -8,54 +8,56 @@
 				"titleAlign": "left",
 				"app-plus": {
 					"titleNView": {
-						"titleAlign": "left"
-					
+						"titleAlign": "left",
+						"buttons": [{
+							"type": "menu",
+							"fontSize": "16px"
+						}]
 					} //禁用原生导航栏
 				}
 			}
+		}, {
+			"path": "pages/dumbbellCounter/dumbbellCounter",
+			"style": {
+				"navigationBarTitleText": "哑铃计数器",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/situpCounter/situpCounter",
+			"style": {
+				"navigationBarTitleText": "仰卧起坐计数器",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/billingRecord/billingRecord",
+			"style": {
+				"navigationBarTitleText": "账单记录",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/accountManager/accountManager",
+			"style": {
+				"navigationBarTitleText": "账号密码管理",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/about/about",
+			"style": {
+				"navigationBarTitleText": "关于",
+				"enablePullDownRefresh": false
+			}
 		}
-	    ,{
-            "path" : "pages/dumbbellCounter/dumbbellCounter",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "哑铃计数器",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-        ,{
-            "path" : "pages/situpCounter/situpCounter",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "仰卧起坐计数器",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-        ,{
-            "path" : "pages/billingRecord/billingRecord",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "账单记录",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-        ,{
-            "path" : "pages/accountManager/accountManager",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "账号密码管理",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-    ],
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "rinson.百宝箱",
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"backgroundColor": "#F8F8F8",
+		"maxWidth": "600rpx"
 	},
 	"uniIdRouter": {}
 }

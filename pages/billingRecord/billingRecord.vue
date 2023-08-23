@@ -1,6 +1,6 @@
 <template>
 	<view>
-		
+		账单记录工具开发中
 	</view>
 </template>
 

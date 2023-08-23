@@ -11,6 +11,7 @@
 				<div>仰卧起坐</div>
 				<div>计数器</div>
 			</div>
+			<!-- #ifdef APP-PLUS -->
 			<div class="nav-item" :prop="is_show" @click="toggle(3)" @touchend="renderswipe.toggle">
 				<i class="iconfont icon-zhangdan_o"></i>
 				<div>账单记录</div>
@@ -20,6 +21,8 @@
 				<div>账号密码</div>
 				<div>管理</div>
 			</div>
+			
+			<!-- #endif -->
 		</view>
 	</view>
 </template>
@@ -35,28 +38,34 @@
 		onLoad() {
 
 		},
+		onNavigationBarButtonTap(e) {
+			var index = e.index;
+			uni.navigateTo({
+				url: '/pages/about/about'
+			});
+		},
 		methods: {
 			toggle(tag) {
 				// if(alert) {
 				// 	alert(tag);
 				// }
 				this.is_show = tag;
-				if(tag === 1) {
+				if (tag === 1) {
 					uni.navigateTo({
 						url: '/pages/dumbbellCounter/dumbbellCounter'
 					});
 				}
-				if(tag === 2) {
+				if (tag === 2) {
 					uni.navigateTo({
 						url: '/pages/situpCounter/situpCounter'
 					});
 				}
-				if(tag === 3) {
+				if (tag === 3) {
 					uni.navigateTo({
 						url: '/pages/billingRecord/billingRecord'
 					});
 				}
-				if(tag === 4) {
+				if (tag === 4) {
 					uni.navigateTo({
 						url: '/pages/accountManager/accountManager'
 					});
@@ -76,26 +85,27 @@
 			toggle(tag) {
 				// console.log( JSON.stringify(tag) );
 				// window.alert(tag.currentTarget.id);
-				 // window.alert(tag);
+				// window.alert(tag);
 			},
 		}
 	}
 </script>
 
-<style>
+<style scoped lang="scss">
 	.content {
 		display: flex;
 		flex-flow: row wrap;
 		align-content: flex-start;
-		padding: 30rpx;
-		width: 100%;
+		// padding: 30rpx;
 		height: 100%;
+		width: 100%;
 	}
 
 	.text-area {
 		display: flex;
 		flex-wrap: wrap;
 		width: 100%;
+		padding: 30rpx;
 		justify-content: flex-start;
 	}
 
@@ -103,7 +113,7 @@
 		box-sizing: border-box;
 		flex: 0 0 1;
 		height: 260rpx;
-		width: calc((100% - 180rpx) / 2);
+		width: calc((100% - 120rpx) / 2);
 		padding: 40rpx 20rpx;
 		background-color: rgba(22, 145, 255, 0.15);
 		border: 1rpx solid rgba(24, 144, 255, 0.5);
