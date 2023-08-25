@@ -140,7 +140,7 @@
 						]
 					},
 				},
-				
+
 				// tts
 				receiver: null,
 				play: null,
@@ -386,7 +386,8 @@
 			 */
 			countTimeSpend() {
 				// 计算预计耗时
-				let totalTime = ((Number(this.formData.value1) * (Number(this.formData.value2) + 4.5)) + (Number(this.formData.value4)) * Number(this.formData.value3));
+				let totalTime = ((Number(this.formData.value1) * (Number(this.formData.value2) + 4.5)) + (Number(this
+					.formData.value4)) * Number(this.formData.value3));
 				if (this.formData.value5 === 1) {
 					totalTime = totalTime * 2;
 					totalTime += (Number(this.formData.value7) + 3) * Number(this.formData.value3);
@@ -399,6 +400,7 @@
 			 */
 			startBtn() {
 				this.validateForm(() => {
+					this.stopCounter(true);
 					this.setKeepScreenOn(true);
 					this.setEchartOption();
 					this.onStart = true;
@@ -539,7 +541,7 @@
 					musicList.push('miao');
 					setTimeout(() => {
 						this.playAudioList(musicList);
-					}, 0);
+					}, 5);
 					// 开始组歇
 					this.timer2 = setTimeout(() => {
 						this.start();
@@ -565,9 +567,10 @@
 					musicList.push('ci');
 					setTimeout(() => {
 						this.playAudioList(musicList);
-					});
+					}, 0);
 					// 取消屏幕常亮
 					this.setKeepScreenOn(false);
+					this.stopCounter(false);
 					if (this.interval3) {
 						clearInterval(this.interval3);
 						this.interval3 = null;
@@ -582,7 +585,7 @@
 				let musicList = ['zanting'];
 				setTimeout(() => {
 					this.playAudioList(musicList);
-				}, 0)
+				}, 0);
 				if (this.timer) {
 					clearInterval(this.timer);
 					this.timer = null;
@@ -629,27 +632,33 @@
 				setTimeout(() => {
 					this.playAudioList(musicList);
 				}, 0)
-				this.number = 0;
-				this.groupNum = 0;
-				this.stopEchartsTimer1(false);
-				this.currentSide = 1;
+				this.stopCounter(false);
+				this.clearAudioObj();
+			},
+
+			stopCounter(resetNumTag) {
+				if (resetNumTag) {
+					this.number = 0;
+					this.groupNum = 0;
+					this.currentSide = 1;
+				}
+				this.startTime = null;
+				this.onStart = false;
 				if (this.timer) {
 					clearInterval(this.timer);
 					this.timer = null;
 				}
-				this.stopEchartsTimer2(true);
-				if (this.timer) {
+				if (this.timer2) {
 					clearTimeout(this.timer2);
 					this.timer2 = null;
 				}
-				this.startTime = null;
 				if (this.interval3) {
 					clearInterval(this.interval3);
 					this.interval3 = null;
 				}
+				this.stopEchartsTimer1(false);
+				this.stopEchartsTimer2(true);
 				this.setKeepScreenOn(false);
-				this.onStart = false;
-				this.clearAll();
 			},
 			/**
 			 * 清除所有计时器和已完成数量
@@ -659,28 +668,11 @@
 				setTimeout(() => {
 					this.playAudioList(musicList);
 				}, 0)
-				if (this.timer) {
-					clearInterval(this.timer);
-					this.timer = null;
-				}
-				if (this.timer) {
-					clearTimeout(this.timer2);
-					this.timer2 = null;
-				}
-				if (this.interval3) {
-					clearInterval(this.interval3);
-					this.interval3 = null;
-				}
-				this.stopEchartsTimer1(false);
-				this.stopEchartsTimer2(true);
-				this.number = 0;
-				this.groupNum = 0;
-				this.currentSide = 1;
-				this.startTime = null;
-				this.onStart = false;
-				this.setKeepScreenOn(false);
 
-
+				this.stopCounter(true);
+				this.clearAudioObj();
+			},
+			clearAudioObj() {
 				// #ifdef APP-PLUS
 				if (plus.os.name === 'Android') {
 					if (this.audioObjAndroid) {
@@ -711,7 +703,7 @@
 					let musicList = ['num_' + Number(num) + ''];
 					setTimeout(() => {
 						this.playAudioList(musicList);
-					}, 0)
+					}, 5);
 				} else if (num < 1000) {
 					// 大于一百的整十数，组合两个音频，如110 --> 一百 一十
 					let musicList = [];
@@ -726,14 +718,14 @@
 						musicList.push(str);
 						setTimeout(() => {
 							this.playAudioList(musicList);
-						}, 0)
+						}, 5)
 					}
 				} else {
 					this.tipMessage = '超过一千';
 					let musicList = ['cgyqzbzc'];
 					setTimeout(() => {
 						this.playAudioList(musicList);
-					}, 0)
+					}, 5)
 					this.stop();
 				}
 			},
@@ -782,7 +774,7 @@
 				let musicList = ['nywc', 'di', '10', 'zu', 'zuxie', '10', '6', 'miao'];
 				setTimeout(() => {
 					this.playAudioList(musicList);
-				}, 0)
+				}, 0);
 			},
 
 			/** 

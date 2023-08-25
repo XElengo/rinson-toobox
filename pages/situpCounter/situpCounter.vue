@@ -24,36 +24,6 @@
 
 			<view class="uni-form-item uni-column">
 				<!-- <view class="form-item">
-					<text class="uni-subtitle">每组次数（整数）：</text>
-					<uni-easyinput class="uni-mt-5" trim="all" v-model="value1" placeholder="请输入内容"
-						@input="input"></uni-easyinput>
-				</view>
-
-				<view class="form-item">
-					<text class="uni-subtitle">每次时间间隔（秒，可以有小数）：</text>
-					<uni-easyinput class="uni-mt-5" trim="all" v-model="value2" placeholder="请输入内容"
-						@input="input"></uni-easyinput>
-				</view>
-				<view class="form-item">
-					<text class="uni-subtitle">组数（整数）：</text>
-					<uni-easyinput class="uni-mt-5" trim="all" v-model="value3" placeholder="请输入内容"
-						@input="input"></uni-easyinput>
-				</view>
-				<view class="form-item">
-					<text class="uni-subtitle">每组时间间隔（秒，可以有小数，建议8以上)：</text>
-					<uni-easyinput class="uni-mt-5" trim="all" v-model="value4" placeholder="请输入内容"
-						@input="input"></uni-easyinput>
-				</view> -->
-				<!-- <view class="form-item">
-					<text class="uni-subtitle">是否区分左右：</text>
-					<uni-data-checkbox mode="tag" v-model="value5" :localdata="sideList"></uni-data-checkbox>
-				</view> -->
-				<!-- view class="form-item" v-if="value5 === 1">
-					<text class="uni-subtitle">左右切换时间（单位：秒，可以有小数）：</text>
-					<uni-easyinput class="uni-mt-5" trim="all" v-model="value7" placeholder="请输入内容"
-						@input="input"></uni-easyinput>
-				</view> -->
-				<!-- <view class="form-item">
 					<text class="uni-subtitle">播放方式：</text>
 					<uni-data-checkbox mode="tag" v-model="value6" :localdata="voiceType"></uni-data-checkbox>
 				</view> -->
@@ -417,6 +387,7 @@
 			 */
 			startBtn() {
 				this.validateForm(() => {
+					this.stopCounter(true);
 					this.setKeepScreenOn(true);
 					this.setEchartOption();
 					this.onStart = true;
@@ -499,7 +470,6 @@
 					this.startCounterIntenvalItem();
 				}, Number(this.formData.value2) * 1000);
 			},
-
 			startCounterIntenvalItem() {
 				this.number++;
 				if (this.number <= Number(this.formData.value1)) {
@@ -559,7 +529,7 @@
 					musicList.push('miao');
 					setTimeout(() => {
 						this.playAudioList(musicList);
-					}, 0);
+					}, 5);
 					// 开始组歇
 					this.timer2 = setTimeout(() => {
 						this.start();
@@ -585,7 +555,7 @@
 					musicList.push('ci');
 					setTimeout(() => {
 						this.playAudioList(musicList);
-					});
+					}, 0);
 					// 取消屏幕常亮
 					this.setKeepScreenOn(false);
 					if (this.interval3) {
@@ -602,7 +572,7 @@
 				let musicList = ['zanting'];
 				setTimeout(() => {
 					this.playAudioList(musicList);
-				}, 0)
+				}, 0);
 				if (this.timer) {
 					clearInterval(this.timer);
 					this.timer = null;
@@ -649,27 +619,33 @@
 				let musicList = ['tingzhi'];
 				setTimeout(() => {
 					this.playAudioList(musicList);
-				}, 0)
-				this.number = 0;
-				this.groupNum = 0;
-				this.stopEchartsTimer1(false);
-				this.currentSide = 1;
+				}, 0);
+				this.stopCounter(false);
+				this.clearAudioObj();
+			},
+			stopCounter(resetNumTag) {
+				if (resetNumTag) {
+					this.number = 0;
+					this.groupNum = 0;
+					this.currentSide = 1;
+				}
+				this.startTime = null;
+				this.onStart = false;
 				if (this.timer) {
 					clearInterval(this.timer);
 					this.timer = null;
 				}
-				this.stopEchartsTimer2(true);
-				if (this.timer) {
+				if (this.timer2) {
 					clearTimeout(this.timer2);
 					this.timer2 = null;
 				}
-				this.startTime = null;
 				if (this.interval3) {
 					clearInterval(this.interval3);
 					this.interval3 = null;
 				}
+				this.stopEchartsTimer1(false);
+				this.stopEchartsTimer2(true);
 				this.setKeepScreenOn(false);
-				this.onStart = false;
 			},
 			/**
 			 * 清除所有计时器和已完成数量
@@ -679,28 +655,10 @@
 				setTimeout(() => {
 					this.playAudioList(musicList);
 				}, 0)
-				if (this.timer) {
-					clearInterval(this.timer);
-					this.timer = null;
-				}
-				if (this.timer) {
-					clearTimeout(this.timer2);
-					this.timer2 = null;
-				}
-				if (this.interval3) {
-					clearInterval(this.interval3);
-					this.interval3 = null;
-				}
-				this.stopEchartsTimer1(false);
-				this.stopEchartsTimer2(true);
-				this.number = 0;
-				this.groupNum = 0;
-				this.currentSide = 1;
-				this.startTime = null;
-				this.onStart = false;
-				this.setKeepScreenOn(false);
-
-
+				this.stopCounter(true);
+				this.clearAudioObj();
+			},
+			clearAudioObj() {
 				// #ifdef APP-PLUS
 				if (plus.os.name === 'Android') {
 					if (this.audioObjAndroid) {
@@ -718,7 +676,6 @@
 				}
 				// #endif
 			},
-
 			/**
 			 * 组内计数个数播放
 			 */
@@ -732,7 +689,7 @@
 					let musicList = ['num_' + Number(num) + ''];
 					setTimeout(() => {
 						this.playAudioList(musicList);
-					}, 0)
+					}, 5);
 				} else if (num < 1000) {
 					// 大于一百的整十数，组合两个音频，如110 --> 一百 一十
 					let musicList = [];
@@ -747,14 +704,14 @@
 						musicList.push(str);
 						setTimeout(() => {
 							this.playAudioList(musicList);
-						}, 0)
+						}, 5);
 					}
 				} else {
 					this.tipMessage = '超过一千';
 					let musicList = ['cgyqzbzc'];
 					setTimeout(() => {
 						this.playAudioList(musicList);
-					}, 0)
+					}, 5);
 					this.stop();
 				}
 			},
@@ -803,7 +760,7 @@
 				let musicList = ['nywc', 'di', '10', 'zu', 'zuxie', '10', '6', 'miao'];
 				setTimeout(() => {
 					this.playAudioList(musicList);
-				}, 0)
+				}, 0);
 			},
 			/** 
 			 * 依次播放传入的音频列表
@@ -1109,8 +1066,8 @@
 					value2: this.formData.value2 || '',
 					value3: this.formData.value3 || '',
 					value4: this.formData.value4 || '',
-					value5: this.formData.value5 || '',
-					value7: this.formData.value7 || '',
+					// value5: this.formData.value5 || '',
+					// value7: this.formData.value7 || '',
 				});
 				uni.setStorage({
 					key: 'rinson_toolbox_config_2',
@@ -1141,12 +1098,12 @@
 					if (config.value4) {
 						this.formData.value4 = config.value4;
 					}
-					if (config.value5) {
-						this.formData.value5 = config.value5;
-					}
-					if (config.value7) {
-						this.formData.value7 = config.value7;
-					}
+					// if (config.value5) {
+					// 	this.formData.value5 = config.value5;
+					// }
+					// if (config.value7) {
+					// 	this.formData.value7 = config.value7;
+					// }
 				}
 			},
 			/**
