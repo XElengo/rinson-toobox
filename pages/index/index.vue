@@ -11,8 +11,8 @@
 				<div>仰卧起坐</div>
 				<div>计数器</div>
 			</div>
-			<!-- #ifdef APP-PLUS -->
-			<div class="nav-item" :prop="is_show" @click="toggle(3)" @touchend="renderswipe.toggle">
+			
+			<!-- <div class="nav-item" :prop="is_show" @click="toggle(3)" @touchend="renderswipe.toggle">
 				<i class="iconfont icon-zhangdan_o"></i>
 				<div>账单记录</div>
 			</div>
@@ -20,8 +20,8 @@
 				<i class="iconfont icon-zhanghaomima"></i>
 				<div>账号密码</div>
 				<div>管理</div>
-			</div>
-			
+			</div> -->
+			<!-- #ifdef APP-PLUS -->
 			<!-- #endif -->
 		</view>
 	</view>
