@@ -175,6 +175,9 @@
 				gaugeData1: {},
 				gaugeData2: {},
 				echartOption: {},
+				
+				audioContext: null,
+				
 			}
 		},
 		onLoad() {
@@ -785,29 +788,43 @@
 			 */
 			playAudioListH5(musicList, handler) {
 				try {
-					if (this.audioObjH5) {
+					if (!this.audioContext) {
+						this.audioContext = new AudioContext();
+					}
+					if (!this.audioObjH5) {
+						this.audioObjH5 = new Audio(); // 这里的路径写上mp3文件在项目中的绝对路径
+					} else {
 						this.audioObjH5.pause();
 						this.audioObjH5 = null;
+						this.audioObjH5 = new Audio();
 					}
-					this.audioObjH5 = new Audio(); // 这里的路径写上mp3文件在项目中的绝对路径
-					let index = 0;
-					let src = '/static/mp3/' + musicList[index] + '.mp3';
-					this.audioObjH5.src = src;
-					this.audioObjH5.play(); // 启动音频，也就是播放
-					this.audioObjH5.addEventListener("ended", () => {
-						index++;
-						if (musicList[index]) {
-							let src = '/static/mp3/' + musicList[index] + '.mp3';
-							this.audioObjH5.src = src;
-							this.audioObjH5.play(); // 启动音频，也就是播放
-						} else if (this.audioObjH5) {
-							this.audioObjH5.pause();
-							this.audioObjH5 = null;
+					let this_ = this;
+					let musicSrc = '';
+					if (musicList.length > 1) {
+						let list = [];
+						musicList.forEach(m => {
+							list.push('/static/mp3/' + m + '.mp3');
+						});
+						this.concatAudioObj(list).then(src => {
+							musicSrc = src;
+							play(musicSrc);
+						});
+					} else {
+						musicSrc = '/static/mp3/' + musicList[0] + '.mp3';
+						play(musicSrc);
+					}
+					
+					function play(musicSrc) {
+						this_.audioObjH5.src = musicSrc;
+						this_.audioObjH5.play(); // 启动音频，也就是播放
+						this_.audioObjH5.addEventListener("ended", () => {
+							this_.audioObjH5.pause();
+							this_.audioObjH5.src = null;
 							if (handler) {
 								handler();
 							}
-						}
-					});
+						});
+					}
 				} catch (e) {
 					//TODO handle the exception
 					console.log('audioObjH5 catchError', e);
@@ -826,50 +843,60 @@
 			playAudioListAndroid(musicList, handler) {
 				// console.log('musicList', musicList);
 				try {
-					if (this.audioObjAndroid) {
+					if (!this.audioContext) {
+						this.audioContext = new AudioContext();
+					}
+					if (!this.audioObjAndroid) {
+						this.audioObjAndroid = uni.createInnerAudioContext();
+						// this.audioObjAndroid.autoplay = true;
+					} else {
 						this.audioObjAndroid.pause();
 						this.audioObjAndroid.stop();
 						this.audioObjAndroid = null;
-						// this.audioObjAndroid.autoplay = true;
+						this.audioObjAndroid = uni.createInnerAudioContext();
 					}
-					this.audioObjAndroid = uni.createInnerAudioContext();
-					let index = 0;
-					let src = '/static/mp3/' + musicList[index] + '.mp3';
-					this.audioObjAndroid.src = src;
-					// this.audioObjAndroid.stop();
-					this.audioObjAndroid.onCanplay(() => {
-						this.audioObjAndroid.play(); // 启动音频，也就是播放
-					});
-					this.audioObjAndroid.onPlay(() => {
-						// console.log('开始播放');
-					});
-					this.audioObjAndroid.onEnded(() => {
-						index++;
-						if (musicList[index]) {
-							// this.audioObjAndroid.pause();
-							// this.audioObjAndroid.stop();
-							let src = '/static/mp3/' + musicList[index] + '.mp3';
-							this.audioObjAndroid.src = src;
-							this.audioObjAndroid.onCanplay(() => {
-								this.audioObjAndroid.play(); // 启动音频，也就是播放
-							});
-						} else if (this.audioObjAndroid) {
+					let this_ = this;
+					let musicSrc = '';
+					if (musicList.length > 1) {
+						let list = [];
+						musicList.forEach(m => {
+							list.push('/static/mp3/' + m + '.mp3');
+						});
+						this.concatAudioObj(list).then(src => {
+							musicSrc = src;
+							play(musicSrc);
+						});
+					} else {
+						musicSrc = '/static/mp3/' + musicList[0] + '.mp3';
+						play(musicSrc);
+					}
+					
+					function play(musicSrc) {
+						this.audioObjAndroid.src = musicSrc;
+						// this.audioObjAndroid.stop();
+						this.audioObjAndroid.onCanplay(() => {
+							this.audioObjAndroid.play(); // 启动音频，也就是播放
+						});
+						this.audioObjAndroid.onPlay(() => {
+							// console.log('开始播放');
+						});
+						this.audioObjAndroid.onEnded(() => {
 							this.audioObjAndroid.stop();
 							this.audioObjAndroid.destroy();
 							this.audioObjAndroid = null;
 							if (handler) {
 								handler();
 							}
-						}
-					});
-					this.audioObjAndroid.onError((e) => {
-						console.log('audioObjAndroid onError', JSON.stringify(e), this.audioObjAndroid.src);
-						if (this.audioObjAndroid) {
-							this.audioObjAndroid.stop();
-							this.audioObjAndroid.destroy();
-							this.audioObjAndroid = null;
-						}
-					});
+						});
+						this.audioObjAndroid.onError((e) => {
+							console.log('audioObjAndroid onError', JSON.stringify(e), this.audioObjAndroid.src);
+							if (this.audioObjAndroid) {
+								this.audioObjAndroid.stop();
+								this.audioObjAndroid.destroy();
+								this.audioObjAndroid = null;
+							}
+						});
+					}
 				} catch (e) {
 					console.log('audioObjAndroid catchError', e);
 					if (this.audioObjAndroid) {

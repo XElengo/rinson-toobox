@@ -183,6 +183,8 @@
 				gaugeData2: {},
 				echartOption: {},
 
+				audioContext: null,
+
 			}
 		},
 		onLoad() {
@@ -800,29 +802,43 @@
 			 */
 			playAudioListH5(musicList, handler) {
 				try {
-					if (this.audioObjH5) {
+					if (!this.audioContext) {
+						this.audioContext = new AudioContext();
+					}
+					if (!this.audioObjH5) {
+						this.audioObjH5 = new Audio(); // 这里的路径写上mp3文件在项目中的绝对路径
+					} else {
 						this.audioObjH5.pause();
 						this.audioObjH5 = null;
+						this.audioObjH5 = new Audio();
 					}
-					this.audioObjH5 = new Audio(); // 这里的路径写上mp3文件在项目中的绝对路径
-					let index = 0;
-					let src = '/static/mp3/' + musicList[index] + '.mp3';
-					this.audioObjH5.src = src;
-					this.audioObjH5.play(); // 启动音频，也就是播放
-					this.audioObjH5.addEventListener("ended", () => {
-						index++;
-						if (musicList[index]) {
-							let src = '/static/mp3/' + musicList[index] + '.mp3';
-							this.audioObjH5.src = src;
-							this.audioObjH5.play(); // 启动音频，也就是播放
-						} else if (this.audioObjH5) {
-							this.audioObjH5.pause();
-							this.audioObjH5 = null;
+					let this_ = this;
+					let musicSrc = '';
+					if (musicList.length > 1) {
+						let list = [];
+						musicList.forEach(m => {
+							list.push('/static/mp3/' + m + '.mp3');
+						});
+						this.concatAudioObj(list).then(src => {
+							musicSrc = src;
+							play(musicSrc);
+						});
+					} else {
+						musicSrc = '/static/mp3/' + musicList[0] + '.mp3';
+						play(musicSrc);
+					}
+
+					function play(musicSrc) {
+						this_.audioObjH5.src = musicSrc;
+						this_.audioObjH5.play(); // 启动音频，也就是播放
+						this_.audioObjH5.addEventListener("ended", () => {
+							this_.audioObjH5.pause();
+							this_.audioObjH5.src = null;
 							if (handler) {
 								handler();
 							}
-						}
-					});
+						});
+					}
 				} catch (e) {
 					//TODO handle the exception
 					console.log('audioObjH5 catchError', e);
@@ -841,50 +857,60 @@
 			playAudioListAndroid(musicList, handler) {
 				// console.log('musicList', musicList);
 				try {
-					if (this.audioObjAndroid) {
+					if (!this.audioContext) {
+						this.audioContext = new AudioContext();
+					}
+					if (!this.audioObjAndroid) {
+						this.audioObjAndroid = uni.createInnerAudioContext();
+						// this.audioObjAndroid.autoplay = true;
+					} else {
 						this.audioObjAndroid.pause();
 						this.audioObjAndroid.stop();
 						this.audioObjAndroid = null;
-						// this.audioObjAndroid.autoplay = true;
+						this.audioObjAndroid = uni.createInnerAudioContext();
 					}
-					this.audioObjAndroid = uni.createInnerAudioContext();
-					let index = 0;
-					let src = '/static/mp3/' + musicList[index] + '.mp3';
-					this.audioObjAndroid.src = src;
-					// this.audioObjAndroid.stop();
-					this.audioObjAndroid.onCanplay(() => {
-						this.audioObjAndroid.play(); // 启动音频，也就是播放
-					});
-					this.audioObjAndroid.onPlay(() => {
-						// console.log('开始播放');
-					});
-					this.audioObjAndroid.onEnded(() => {
-						index++;
-						if (musicList[index]) {
-							// this.audioObjAndroid.pause();
-							// this.audioObjAndroid.stop();
-							let src = '/static/mp3/' + musicList[index] + '.mp3';
-							this.audioObjAndroid.src = src;
-							this.audioObjAndroid.onCanplay(() => {
-								this.audioObjAndroid.play(); // 启动音频，也就是播放
-							});
-						} else if (this.audioObjAndroid) {
+					let this_ = this;
+					let musicSrc = '';
+					if (musicList.length > 1) {
+						let list = [];
+						musicList.forEach(m => {
+							list.push('/static/mp3/' + m + '.mp3');
+						});
+						this.concatAudioObj(list).then(src => {
+							musicSrc = src;
+							play(musicSrc);
+						});
+					} else {
+						musicSrc = '/static/mp3/' + musicList[0] + '.mp3';
+						play(musicSrc);
+					}
+
+					function play(musicSrc) {
+						this.audioObjAndroid.src = musicSrc;
+						// this.audioObjAndroid.stop();
+						this.audioObjAndroid.onCanplay(() => {
+							this.audioObjAndroid.play(); // 启动音频，也就是播放
+						});
+						this.audioObjAndroid.onPlay(() => {
+							// console.log('开始播放');
+						});
+						this.audioObjAndroid.onEnded(() => {
 							this.audioObjAndroid.stop();
 							this.audioObjAndroid.destroy();
 							this.audioObjAndroid = null;
 							if (handler) {
 								handler();
 							}
-						}
-					});
-					this.audioObjAndroid.onError((e) => {
-						console.log('audioObjAndroid onError', JSON.stringify(e), this.audioObjAndroid.src);
-						if (this.audioObjAndroid) {
-							this.audioObjAndroid.stop();
-							this.audioObjAndroid.destroy();
-							this.audioObjAndroid = null;
-						}
-					});
+						});
+						this.audioObjAndroid.onError((e) => {
+							console.log('audioObjAndroid onError', JSON.stringify(e), this.audioObjAndroid.src);
+							if (this.audioObjAndroid) {
+								this.audioObjAndroid.stop();
+								this.audioObjAndroid.destroy();
+								this.audioObjAndroid = null;
+							}
+						});
+					}
 				} catch (e) {
 					console.log('audioObjAndroid catchError', e);
 					if (this.audioObjAndroid) {
@@ -894,6 +920,122 @@
 					}
 				}
 
+			},
+
+			async concatAudioObj(audioSrcArray) {
+				const arrBufferList = await Promise.all(audioSrcArray.map(src => this.getAudioBuffer(src)));
+				let concatAudioBuffer = this.concatAudio(arrBufferList);
+				const newAudioSrc = URL.createObjectURL(this.bufferToWave(concatAudioBuffer, concatAudioBuffer
+					.length));
+				return newAudioSrc;
+			},
+
+			getAudioBuffer(src) {
+				return new Promise((resolve, reject) => {
+					fetch(src).then(response => response.arrayBuffer()).then(arrayBuffer => {
+						this.audioContext.decodeAudioData(arrayBuffer).then(buffer => {
+							resolve(buffer);
+						});
+					})
+				})
+			},
+
+			// 拼接音频的方法
+			concatAudio(arrBufferList) {
+				// 获得 AudioBuffer
+				const audioBufferList = arrBufferList;
+				// 最大通道数
+				const maxChannelNumber = Math.max(...audioBufferList.map(audioBuffer => audioBuffer.numberOfChannels));
+				// 总长度
+				const totalLength = audioBufferList.map((buffer) => buffer.length).reduce((lenA, lenB) => lenA + lenB, 0);
+
+				// 创建一个新的 AudioBuffer
+				const newAudioBuffer = this.audioContext.createBuffer(maxChannelNumber, totalLength, audioBufferList[0]
+					.sampleRate);
+				// 将所有的 AudioBuffer 的数据拷贝到新的 AudioBuffer 中
+				let offset = 0;
+
+				audioBufferList.forEach((audioBuffer, index) => {
+					for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+						newAudioBuffer.getChannelData(channel).set(audioBuffer.getChannelData(channel), offset);
+					}
+
+					offset += audioBuffer.length;
+				});
+
+				return newAudioBuffer;
+			},
+
+			// AudioBuffer 转 blob
+			bufferToWave(abuffer, len) {
+				var numOfChan = abuffer.numberOfChannels,
+					length = len * numOfChan * 2 + 44,
+					buffer = new ArrayBuffer(length),
+					view = new DataView(buffer),
+					channels = [],
+					i, sample,
+					offset = 0,
+					pos = 0;
+
+				// write WAVE header
+				// "RIFF"
+				setUint32(0x46464952);
+				// file length - 8                      
+				setUint32(length - 8);
+				// "WAVE"                     
+				setUint32(0x45564157);
+				// "fmt " chunk
+				setUint32(0x20746d66);
+				// length = 16                       
+				setUint32(16);
+				// PCM (uncompressed)                               
+				setUint16(1);
+				setUint16(numOfChan);
+				setUint32(abuffer.sampleRate);
+				// avg. bytes/sec
+				setUint32(abuffer.sampleRate * 2 * numOfChan);
+				// block-align
+				setUint16(numOfChan * 2);
+				// 16-bit (hardcoded in this demo)
+				setUint16(16);
+				// "data" - chunk
+				setUint32(0x61746164);
+				// chunk length                   
+				setUint32(length - pos - 4);
+
+				// write interleaved data
+				for (i = 0; i < abuffer.numberOfChannels; i++)
+					channels.push(abuffer.getChannelData(i));
+
+				while (pos < length) {
+					// interleave channels
+					for (i = 0; i < numOfChan; i++) {
+						// clamp
+						sample = Math.max(-1, Math.min(1, channels[i][offset]));
+						// scale to 16-bit signed int
+						sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+						// write 16-bit sample
+						view.setInt16(pos, sample, true);
+						pos += 2;
+					}
+					// next source sample
+					offset++;
+				}
+
+				// create Blob
+				return new Blob([buffer], {
+					type: "audio/wav"
+				});
+
+				function setUint16(data) {
+					view.setUint16(pos, data, true);
+					pos += 2;
+				}
+
+				function setUint32(data) {
+					view.setUint32(pos, data, true);
+					pos += 4;
+				}
 			},
 
 			/**
@@ -1137,8 +1279,6 @@
 						});
 					}
 				});
-
-
 			},
 		}
 	}
