@@ -68,6 +68,7 @@
 			<view :prop="echartOption" :echartsValue1="echartsValue1" :echartsValue2="echartsValue2"
 				:change:prop="echarts.updateEcharts" :change:echartsValue1="echarts.setOption1"
 				:change:echartsValue2="echarts.setOption2" id="echarts" class="echarts"></view>
+			<view></view>
 		</view>
 	</view>
 </template>
@@ -857,60 +858,46 @@
 			playAudioListAndroid(musicList, handler) {
 				// console.log('musicList', musicList);
 				try {
-					if (!this.audioContext) {
-						this.audioContext = new AudioContext();
-					}
 					if (!this.audioObjAndroid) {
 						this.audioObjAndroid = uni.createInnerAudioContext();
-						// this.audioObjAndroid.autoplay = true;
-					} else {
-						this.audioObjAndroid.pause();
-						this.audioObjAndroid.stop();
-						this.audioObjAndroid = null;
-						this.audioObjAndroid = uni.createInnerAudioContext();
 					}
-					let this_ = this;
-					let musicSrc = '';
-					if (musicList.length > 1) {
-						let list = [];
-						musicList.forEach(m => {
-							list.push('/static/mp3/' + m + '.mp3');
-						});
-						this.concatAudioObj(list).then(src => {
-							musicSrc = src;
-							play(musicSrc);
-						});
-					} else {
-						musicSrc = '/static/mp3/' + musicList[0] + '.mp3';
-						play(musicSrc);
-					}
-
-					function play(musicSrc) {
-						this.audioObjAndroid.src = musicSrc;
-						// this.audioObjAndroid.stop();
-						this.audioObjAndroid.onCanplay(() => {
-							this.audioObjAndroid.play(); // 启动音频，也就是播放
-						});
-						this.audioObjAndroid.onPlay(() => {
-							// console.log('开始播放');
-						});
-						this.audioObjAndroid.onEnded(() => {
+					let index = 0;
+					let src = '/static/mp3/' + musicList[index] + '.mp3';
+					this.audioObjAndroid.src = src;
+					// this.audioObjAndroid.stop();
+					this.audioObjAndroid.onCanplay(() => {
+						this.audioObjAndroid.play(); // 启动音频，也就是播放
+					});
+					this.audioObjAndroid.onPlay(() => {
+						// console.log('开始播放');
+					});
+					this.audioObjAndroid.onEnded(() => {
+						index++;
+						if (musicList[index]) {
+							// this.audioObjAndroid.pause();
+							// this.audioObjAndroid.stop();
+							src = '/static/mp3/' + musicList[index] + '.mp3';
+							this.audioObjAndroid.src = src;
+							this.audioObjAndroid.onCanplay(() => {
+								this.audioObjAndroid.play(); // 启动音频，也就是播放
+							});
+						} else if (this.audioObjAndroid) {
 							this.audioObjAndroid.stop();
 							this.audioObjAndroid.destroy();
 							this.audioObjAndroid = null;
 							if (handler) {
 								handler();
 							}
-						});
-						this.audioObjAndroid.onError((e) => {
-							console.log('audioObjAndroid onError', JSON.stringify(e), this.audioObjAndroid.src);
-							if (this.audioObjAndroid) {
-								this.audioObjAndroid.stop();
-								this.audioObjAndroid.destroy();
-								this.audioObjAndroid = null;
-							}
-						});
-					}
+						}
+					});
+					this.audioObjAndroid.onError((e) => {
+						console.log('audioObjAndroid onError', JSON.stringify(e), this.audioObjAndroid.src);
+						if (this.audioObjAndroid) {
+							this.audioObjAndroid.stop();
+							this.audioObjAndroid.destroy();
+							this.audioObjAndroid = null;
+						}
+					});
 				} catch (e) {
 					console.log('audioObjAndroid catchError', e);
 					if (this.audioObjAndroid) {
@@ -948,7 +935,6 @@
 				const maxChannelNumber = Math.max(...audioBufferList.map(audioBuffer => audioBuffer.numberOfChannels));
 				// 总长度
 				const totalLength = audioBufferList.map((buffer) => buffer.length).reduce((lenA, lenB) => lenA + lenB, 0);
-
 				// 创建一个新的 AudioBuffer
 				const newAudioBuffer = this.audioContext.createBuffer(maxChannelNumber, totalLength, audioBufferList[0]
 					.sampleRate);
