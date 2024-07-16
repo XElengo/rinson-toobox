@@ -20,6 +20,10 @@
 					<uni-easyinput class="uni-mt-5" trim="all" v-model="formData.value4"
 						placeholder="每组时间间隔（秒，可以有小数，建议8以上)" @input="input"></uni-easyinput>
 				</uni-forms-item>
+				<uni-forms-item required label="是否自动保存运动记录：" name="autoSaveSport">
+					<uni-data-checkbox v-model="formData.autoSaveSport"
+						:localdata="saveSportList"></uni-data-checkbox>
+				</uni-forms-item>
 			</uni-forms>
 
 			<view class="uni-form-item uni-column">
@@ -41,6 +45,8 @@
 				<view class="button-group">
 					<button class="rin-btn" type="primary" size="mini" plain="true" @click="saveConfig">保存配置</button>
 					<button class="rin-btn" type="primary" size="mini" plain="true" @click="removeConfig">清除配置</button>
+					<button class="rin-btn" type="primary" size="mini" plain="true"
+						@click="saveSportRecord">保存记录</button>
 					<br>
 					<text class="tipmsg-1">(配置保存在本地缓存)</text>
 					<!-- <button class="rin-btn" type="primary" size="default" @click="playMusic3">测试</button> -->
@@ -85,6 +91,7 @@
 					value4: '180', // 每组间隔
 					value5: 0, // 是否区分左右
 					value7: '3', // 左右切换时间
+					autoSaveSport: 1, // 是否自动保存运动记录
 				},
 				rules: {
 					value1: {
@@ -167,6 +174,13 @@
 					text: '讯飞tts',
 					value: 1
 				}],
+				saveSportList: [{
+					text: '是',
+					value: 1
+				}, {
+					text: '否',
+					value: 0
+				}], // 是否自动保存运动记录
 				// echarts
 				echartsInterval1: null,
 				echartsInterval2: null,
@@ -175,9 +189,9 @@
 				gaugeData1: {},
 				gaugeData2: {},
 				echartOption: {},
-				
+
 				audioContext: null,
-				
+
 			}
 		},
 		onLoad() {
@@ -559,6 +573,7 @@
 					setTimeout(() => {
 						this.playAudioList(musicList);
 					}, 0);
+					this.saveSportRecord();
 					// 取消屏幕常亮
 					this.setKeepScreenOn(false);
 					if (this.interval3) {
@@ -813,7 +828,7 @@
 						musicSrc = '/static/mp3/' + musicList[0] + '.mp3';
 						play(musicSrc);
 					}
-					
+
 					function play(musicSrc) {
 						this_.audioObjH5.src = musicSrc;
 						this_.audioObjH5.play(); // 启动音频，也就是播放
@@ -839,7 +854,7 @@
 			 * android 用uni-app 的audio对象进行播放
 			 * @param {Object} musicList 需要播放得音频列表
 			 * @param {Object} handler 播放完成后进行回调
-			 */
+			 */	
 			playAudioListAndroid(musicList, handler) {
 				// console.log('musicList', musicList);
 				try {
@@ -1136,7 +1151,77 @@
 
 
 			},
+			// 保存运动记录
+			saveSportRecord() {
+				if (this.formData.autoSaveSport === 1) {
+					let timestr;
+					if (this.startTime) {
+						timestr = this.timeFormat(this.startTime);
+					} else {
+						timestr = this.timeFormat(new Date());
+					}
+					let record = timestr + ' 仰卧起坐：' + this.groupNum + '组，';
+					// if (this.formData.value5 === 1) {
+					// 	record += '左右各';
+					// }
+					let total = Number(this.formData.value1) * Number(this.groupNum);
+					record += total + '次';
 
+					const value = uni.getStorageSync('rinson_toolbox_sportRecord');
+					if (value) {
+						let config = JSON.parse(value);
+						config.unshift({
+							record: record,
+							type: 'ywqz'
+						});
+						let data = JSON.stringify(config);
+						uni.setStorage({
+							key: 'rinson_toolbox_sportRecord',
+							data: data,
+							success: function() {
+								// console.log('success');
+								uni.showToast({
+									title: '保存运动记录成功',
+									icon: 'none',
+								});
+							}
+						});
+					} else {
+						let data = JSON.stringify([{
+							record: record,
+							type: 'yl'
+						}]);
+						uni.setStorage({
+							key: 'rinson_toolbox_sportRecord',
+							data: data,
+							success: function() {
+								// console.log('success');
+								uni.showToast({
+									title: '保存运动记录成功',
+									icon: 'none',
+								});
+							}
+						});
+					}
+				}
+			},
+			timeFormat(time) {
+				const yyyy = time.getFullYear();
+				const MM = this.addZreo(time.getMonth() + 1);
+				const dd = this.addZreo(time.getDate());
+				const hh = this.addZreo(time.getHours());
+				const mm = this.addZreo(time.getMinutes());
+				const ss = this.addZreo(time.getSeconds());
+				return yyyy + '-' + MM + '-' + dd + ' ' + hh + ':' + mm + ':' + ss;
+			},
+			// 时间补0
+			addZreo(test) {
+				if (test <= 9) {
+					return '0' + test;
+				} else {
+					return test;
+				}
+			},
 		}
 	}
 </script>
@@ -1262,7 +1347,7 @@
 		height: 250rpx;
 		/* #endif */
 	}
-	
+
 	.tipmsg-1 {
 		font-size: 14px;
 	}

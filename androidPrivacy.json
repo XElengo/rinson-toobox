@@ -1,8 +1,8 @@
 {
-	"version": "1",
-	"prompt": "template",
-	"title": "服务协议和隐私政策",
-	"message": "请你务必审慎阅读、充分理解“服务协议”和“隐私政策”各条款内容, 以更好的使用本应用。<br/>　你可阅读<a href=\"static/service.html\">《服务协议》</a>和<a href=\"static/privacy.html\">《隐私政策》</a>了解详细信息。如果你同意，请点击下方“同意”按钮开始使用本应用。",
-	"buttonAccept": "同意",
-	"buttonRefuse": "退出应用"
+    "version" : "1",
+    "prompt" : "none",
+    "title" : "服务协议和隐私政策",
+    "message" : "请你务必审慎阅读、充分理解“服务协议”和“隐私政策”各条款内容, 以更好的使用本应用。<br/>　你可阅读<a href=\"static/service.html\">《服务协议》</a>和<a href=\"static/privacy.html\">《隐私政策》</a>了解详细信息。如果你同意，请点击下方“同意”按钮开始使用本应用。",
+    "buttonAccept" : "同意",
+    "buttonRefuse" : "退出应用"
 }

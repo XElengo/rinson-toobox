@@ -11,6 +11,11 @@
 				<div>仰卧起坐</div>
 				<div>计数器</div>
 			</div>
+			<div class="nav-item" :prop="is_show" @click="toggle(5)" @touchend="renderswipe.toggle">
+				<i class="iconfont icon-bijijilu"></i>
+				<div>运动记录</div>
+				<!-- <div>计数器</div> -->
+			</div>
 			
 			<!-- <div class="nav-item" :prop="is_show" @click="toggle(3)" @touchend="renderswipe.toggle">
 				<i class="iconfont icon-zhangdan_o"></i>
@@ -68,6 +73,11 @@
 				if (tag === 4) {
 					uni.navigateTo({
 						url: '/pages/accountManager/accountManager'
+					});
+				}
+				if (tag === 5) {
+					uni.navigateTo({
+						url: '/pages/sportRecord/sportRecord'
 					});
 				}
 			}

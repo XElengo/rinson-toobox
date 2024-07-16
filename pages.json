@@ -1,6 +1,5 @@
 {
-	"pages": [
-		{
+	"pages": [{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "rinson百宝箱",
@@ -13,7 +12,7 @@
 							"type": "menu",
 							"fontSize": "16px"
 						}]
-					} 
+					}
 				}
 			}
 		}, {
@@ -41,6 +40,12 @@
 			"path": "pages/accountManager/accountManager",
 			"style": {
 				"navigationBarTitleText": "账号密码管理",
+				"enablePullDownRefresh": false
+			}
+		}, {
+			"path": "pages/sportRecord/sportRecord",
+			"style": {
+				"navigationBarTitleText": "运动记录",
 				"enablePullDownRefresh": false
 			}
 		},

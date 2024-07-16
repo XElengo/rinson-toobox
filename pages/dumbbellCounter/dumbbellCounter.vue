@@ -28,6 +28,11 @@
 					<uni-easyinput class="uni-mt-5" trim="all" v-model="formData.value7"
 						placeholder="左右切换时间（单位：秒，可以有小数）" @input="input"></uni-easyinput>
 				</uni-forms-item>
+				<uni-forms-item required label="是否自动保存运动记录：" name="autoSaveSport">
+					<uni-data-checkbox v-model="formData.autoSaveSport" :localdata="saveSportList"></uni-data-checkbox>
+				</uni-forms-item>
+				
+
 				<!-- <view class="form-item">
 					<text class="uni-subtitle">播放方式：</text>
 					<uni-data-checkbox mode="tag" v-model="value6" :localdata="voiceType"></uni-data-checkbox>
@@ -48,9 +53,9 @@
 				<view class="button-group">
 					<button class="rin-btn" type="primary" size="mini" plain="true" @click="saveConfig">保存配置</button>
 					<button class="rin-btn" type="primary" size="mini" plain="true" @click="removeConfig">清除配置</button>
+					<button class="rin-btn" type="primary" size="mini" plain="true" @click="saveSportRecord">保存记录</button>
 					<br>
 					<text class="tipmsg-1">(配置保存在本地缓存)</text>
-					<!-- <button type="primary" size="default" @click="playMusic3">测试</button> -->
 				</view>
 			</view>
 			<text class="uni-subtitle">
@@ -93,6 +98,7 @@
 					value4: '10', // 每组间隔
 					value5: 1, // 是否区分左右
 					value7: '3', // 左右切换时间
+					autoSaveSport: 1, // 是否自动保存运动记录
 				},
 
 				rules: {
@@ -175,6 +181,13 @@
 					text: '讯飞tts',
 					value: 1
 				}], // 语音播放类型待选项
+				saveSportList: [{
+					text: '是',
+					value: 1
+				}, {
+					text: '否',
+					value: 0
+				}], // 是否自动保存运动记录
 				// echarts
 				echartsInterval1: null,
 				echartsInterval2: null,
@@ -451,7 +464,7 @@
 			 */
 			startTimer3(startTag) {
 				if (startTag) {
-					this.startTime = new Date().getTime();
+					this.startTime = new Date();
 					this.useSeconds = 0;
 				}
 				if (this.interval3) {
@@ -571,6 +584,8 @@
 					setTimeout(() => {
 						this.playAudioList(musicList);
 					}, 0);
+					this.saveSportRecord();
+
 					// 取消屏幕常亮
 					this.setKeepScreenOn(false);
 					this.stopCounter(false);
@@ -1265,6 +1280,77 @@
 						});
 					}
 				});
+			},
+			// 保存运动记录
+			saveSportRecord() {
+				if (this.formData.autoSaveSport === 1) {
+					let timestr;
+					if (this.startTime) {
+						timestr = this.timeFormat(this.startTime);
+					} else {
+						timestr = this.timeFormat(new Date());
+					}
+					let record = timestr + ' 哑铃：' + this.groupNum + '组，';
+					if (this.formData.value5 === 1) {
+						record += '左右各';
+					}
+					let total = Number(this.formData.value1) * Number(this.groupNum);
+					record += total + '次';
+
+					const value = uni.getStorageSync('rinson_toolbox_sportRecord');
+					if (value) {
+						let config = JSON.parse(value);
+						config.unshift({
+							record: record,
+							type: 'yl'
+						});
+						let data = JSON.stringify(config);
+						uni.setStorage({
+							key: 'rinson_toolbox_sportRecord',
+							data: data,
+							success: function() {
+								// console.log('success');
+								uni.showToast({
+									title: '保存运动记录成功',
+									icon: 'none',
+								});
+							}
+						});
+					} else {
+						let data = JSON.stringify([{
+							record: record,
+							type: 'yl'
+						}]);
+						uni.setStorage({
+							key: 'rinson_toolbox_sportRecord',
+							data: data,
+							success: function() {
+								// console.log('success');
+								uni.showToast({
+									title: '保存运动记录成功',
+									icon: 'none',
+								});
+							}
+						});
+					}
+				}
+			},
+			timeFormat(time) {
+				const yyyy = time.getFullYear();
+				const MM = this.addZreo(time.getMonth() + 1);
+				const dd = this.addZreo(time.getDate());
+				const hh = this.addZreo(time.getHours());
+				const mm = this.addZreo(time.getMinutes());
+				const ss = this.addZreo(time.getSeconds());
+				return yyyy + '-' + MM + '-' + dd + ' ' + hh + ':' + mm + ':' + ss;
+			},
+			// 时间补0
+			addZreo(test) {
+				if (test <= 9) {
+					return '0' + test;
+				} else {
+					return test;
+				}
 			},
 		}
 	}
