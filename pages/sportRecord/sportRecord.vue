@@ -1,9 +1,17 @@
 <template>
 	<view>
-		<button class="rin-btn" type="primary" size="mini" plain="true" @click="clearSportRecord">全部清除</button>
 		<text>&nbsp;您已训练{{record.length}}次</text>
-		<uni-list>
-			<uni-list-item v-for="(item,index) in record"  clickable @click="onClick(item, index)">
+		<button class="rin-btn" type="primary" size="mini" plain="true" @click="clearSportRecord">全部清除</button>
+		<button class="rin-btn" type="primary" size="mini" plain="true"
+			@click="toggleShow">{{showType === 1 ? '日历' : '列表'}}</button>
+
+		<view v-if="showType === 2">
+			<!-- 插入模式 -->
+			<uni-calendar class="uni-calendar--hook" :selected="info.selected" :showMonth="true" :lunar="info.lunar"
+				:insert="info.insert" @change="change" @monthSwitch="monthSwitch" />
+		</view>
+		<uni-list v-if="showType === 1">
+			<uni-list-item v-for="(item,index) in record" clickable @click="onClick(item, index)">
 				<template v-slot:header>
 					<view class="slot-box">
 						<i class="iconfont icon-yangwoqizuo" v-if="item.type === 'ywqz'"></i>
@@ -29,6 +37,12 @@
 				record: [],
 				msgType: 'warn',
 				selectItem: null,
+				showType: 1,
+				info: {
+					lunar: true,
+					insert: true,
+					selected: []
+				}
 			}
 		},
 		onReady() {
@@ -39,7 +53,29 @@
 				const value = uni.getStorageSync('rinson_toolbox_sportRecord');
 				if (value) {
 					this.record = JSON.parse(value);
+					this.setCalendarData();
 				}
+			},
+			setCalendarData() {
+				this.info.selected = [];
+				this.record.forEach(item => {
+					if(!item.date && item.record) {
+						item.date = item.record.substring(0, 10);
+					}
+					if (item.date) {
+						let exitItem = this.info.selected.find(item2 => item.date === item2.date);
+						if (exitItem && exitItem.type !== item.type) {
+							exitItem.info = '哑/仰';
+						} else {
+							this.info.selected = [...this.info.selected, {
+								date: item.date,
+								type: item.type,
+								info: item.type === 'yl' ? '哑铃' : '仰卧'
+							}];
+						}
+
+					}
+				})
 			},
 			onClick(item, index) {
 				// console.log('执行click事件', item)
@@ -65,6 +101,7 @@
 						});
 					}
 				});
+				this.setCalendarData();
 			},
 			dialogClose() {
 				this.selectItem = null;
@@ -83,11 +120,28 @@
 						});
 					}
 				});
+				this.setCalendarData();
+			},
+			toggleShow() {
+				if (this.showType === 1) {
+					this.showType = 2;
+				} else {
+					this.showType = 1;
+				}
+
+			},
+			change(e) {
+				// console.log('change 返回:', e)
+			},
+			monthSwitch(e) {
+				// console.log('monthSwitchs 返回:', e)
 			}
 		}
 	}
 </script>
 
 <style>
-
+	.rin-btn {
+		margin-left: 10px;
+	}
 </style>

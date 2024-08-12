@@ -20,10 +20,10 @@
 					<uni-easyinput class="uni-mt-5" trim="all" v-model="formData.value4"
 						placeholder="每组时间间隔（秒，可以有小数，建议8以上)" @input="input"></uni-easyinput>
 				</uni-forms-item>
-				<uni-forms-item required label="是否自动保存运动记录：" name="autoSaveSport">
+				<!-- <uni-forms-item required label="是否自动保存运动记录：" name="autoSaveSport">
 					<uni-data-checkbox v-model="formData.autoSaveSport"
 						:localdata="saveSportList"></uni-data-checkbox>
-				</uni-forms-item>
+				</uni-forms-item> -->
 			</uni-forms>
 
 			<view class="uni-form-item uni-column">
@@ -57,7 +57,7 @@
 			</text>
 			<br>
 			<text class="uni-subtitle">
-				<text v-if="tipMessage2">{{tipMessage2}}，</text>
+				<!-- <text v-if="tipMessage2">{{tipMessage2}}，</text> -->
 				<text>用时 {{tipMessage3}}</text>
 			</text>
 			<br>
@@ -425,7 +425,7 @@
 			 * 开始一组训练 次数计时
 			 */
 			start() {
-				this.tipMessage = '运行中';
+				this.tipMessage = '正在训练';
 				if (this.timer) {
 					clearInterval(timer);
 					this.timer = null;
@@ -507,7 +507,17 @@
 						this.currentSide = 2;
 						this.groupNum--;
 						let musicList = ['zuoce', 'wancheng', 'qhdyc'];
+						this.tipMessage = '左侧完成，休息' + this.formData.value7 + '秒';
 						this.playAudioList(musicList, () => {
+							let second = Number(this.formData.value7);
+							let interval = setInterval(() => {
+								if(second === 0) {
+									clearInterval(interval);
+									return;
+								}
+								second--;
+								this.tipMessage = '左侧完成，休息' + second + '秒';
+							}, 1000);
 							// 开始组歇
 							this.timer2 = setTimeout(() => {
 								this.start();
@@ -537,6 +547,7 @@
 			 */
 			groupWait() {
 				if (this.groupNum < Number(this.formData.value3)) {
+					this.tipMessage = '组歇中，休息' + this.formData.value4 + '秒';
 					// 组歇播报  [您已完成,第,n,组，组歇,m,秒]
 					let musicList = ['nywc', 'di'];
 					let numList = this.splitNumber(this.groupNum);
@@ -544,6 +555,15 @@
 					let numList2 = this.splitNumber(this.formData.value4);
 					musicList = musicList.concat(numList2);
 					musicList.push('miao');
+					let second = Number(this.formData.value4);
+					let interval = setInterval(() => {
+						if(second === 0) {
+							clearInterval(interval);
+							return;
+						}
+						second--;
+						this.tipMessage = '组歇中，休息' + second + '秒';
+					}, 1000);
 					setTimeout(() => {
 						this.playAudioList(musicList);
 					}, 5);
@@ -1270,10 +1290,13 @@
 			saveSportRecord() {
 				if (this.formData.autoSaveSport === 1) {
 					let timestr;
+					let datestr;
 					if (this.startTime) {
 						timestr = this.timeFormat(this.startTime);
+						datestr = this.dateFormat(this.startTime);
 					} else {
 						timestr = this.timeFormat(new Date());
+						datestr = this.dateFormat(new Date());
 					}
 					let record = timestr + ' 仰卧起坐：' + this.groupNum + '组，';
 					// if (this.formData.value5 === 1) {
@@ -1287,7 +1310,8 @@
 						let config = JSON.parse(value);
 						config.unshift({
 							record: record,
-							type: 'ywqz'
+							type: 'ywqz',
+							date: datestr,
 						});
 						let data = JSON.stringify(config);
 						uni.setStorage({
@@ -1304,7 +1328,8 @@
 					} else {
 						let data = JSON.stringify([{
 							record: record,
-							type: 'yl'
+							type: 'yl',
+							date: datestr,
 						}]);
 						uni.setStorage({
 							key: 'rinson_toolbox_sportRecord',
@@ -1328,6 +1353,12 @@
 				const mm = this.addZreo(time.getMinutes());
 				const ss = this.addZreo(time.getSeconds());
 				return yyyy + '-' + MM + '-' + dd + ' ' + hh + ':' + mm + ':' + ss;
+			},
+			dateFormat(time) {
+				const yyyy = time.getFullYear();
+				const MM = this.addZreo(time.getMonth() + 1);
+				const dd = this.addZreo(time.getDate());
+				return yyyy + '-' + MM + '-' + dd;
 			},
 			// 时间补0
 			addZreo(test) {
