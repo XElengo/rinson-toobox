@@ -53,7 +53,7 @@
 				<view class="button-group">
 					<button class="rin-btn" type="primary" size="mini" plain="true" @click="saveConfig">保存配置</button>
 					<button class="rin-btn" type="primary" size="mini" plain="true" @click="removeConfig">清除配置</button>
-					<!-- <button class="rin-btn" type="primary" size="mini" plain="true" @click="saveSportRecord">保存记录</button> -->
+					<button class="rin-btn" type="primary" size="mini" plain="true" @click="saveSportRecord">保存记录</button>
 					<br>
 					<text class="tipmsg-1">(配置保存在本地缓存)</text>
 				</view>

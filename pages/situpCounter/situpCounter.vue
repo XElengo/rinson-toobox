@@ -45,11 +45,11 @@
 				<view class="button-group">
 					<button class="rin-btn" type="primary" size="mini" plain="true" @click="saveConfig">保存配置</button>
 					<button class="rin-btn" type="primary" size="mini" plain="true" @click="removeConfig">清除配置</button>
-					<button class="rin-btn" type="primary" size="mini" plain="true"
-						@click="saveSportRecord">保存记录</button>
-					<br>
-					<text class="tipmsg-1">(配置保存在本地缓存)</text>
+					<button class="rin-btn" type="primary" size="mini" plain="true" @click="saveSportRecord">保存记录</button>
 					<!-- <button class="rin-btn" type="primary" size="default" @click="playMusic3">测试</button> -->
+				</view>
+				<view class="button-group">
+					<text class="tipmsg-1">(配置保存在本地缓存)</text>
 				</view>
 			</view>
 			<text class="uni-subtitle">
@@ -97,7 +97,7 @@
 					value1: {
 						rules: [{
 								required: true,
-								errorMessage: '请输入次数',
+								errorMessage: '请输入每组次数',
 							},
 							{
 								format: 'number',
@@ -108,7 +108,7 @@
 					value2: {
 						rules: [{
 								required: true,
-								errorMessage: '请输入次数',
+								errorMessage: '请输入每次间隔',
 							},
 							{
 								format: 'number',
@@ -119,7 +119,7 @@
 					value3: {
 						rules: [{
 								required: true,
-								errorMessage: '请输入次数',
+								errorMessage: '请输入组数',
 							},
 							{
 								format: 'number',
@@ -130,7 +130,7 @@
 					value4: {
 						rules: [{
 								required: true,
-								errorMessage: '请输入次数',
+								errorMessage: '请输入每组间隔',
 							},
 							{
 								format: 'number',
@@ -155,7 +155,6 @@
 				tipMessage2: '', // 提示信息
 				tipMessage3: '00:00:00', // 已锻炼时长
 				useSeconds: 0, // 锻炼已用秒数
-				onStop: false,
 				onStop: false, // 当前是否正在暂停标记
 				onStart: false, // 当前是否正在进行锻炼标记
 				audioObjAndroid: null, // android端audio对象
@@ -308,7 +307,8 @@
 							// #endif
 							// #ifdef H5
 							radius: '60%',
-							// #endif							animationEasing: 'linear',
+							// #endif							
+							animationEasing: 'linear',
 							animationEasingUpdate: 'linear',
 							animationDuration: 20,
 							animationDurationUpdate: 20,
@@ -427,7 +427,7 @@
 			start() {
 				this.tipMessage = '正在训练';
 				if (this.timer) {
-					clearInterval(timer);
+					clearInterval(this.timer);
 					this.timer = null;
 				}
 				this.number = 0;
@@ -851,6 +851,7 @@
 
 					function play(musicSrc) {
 						this_.audioObjH5.src = musicSrc;
+						this_.audioObjH5.load();
 						this_.audioObjH5.play(); // 启动音频，也就是播放
 						this_.audioObjH5.addEventListener("ended", () => {
 							this_.audioObjH5.pause();
@@ -887,10 +888,11 @@
 					// this.audioObjAndroid.stop();
 					this.audioObjAndroid.onCanplay(() => {
 						this.audioObjAndroid.play(); // 启动音频，也就是播放
+						this.audioObjAndroid.offCanplay();
 					});
-					this.audioObjAndroid.onPlay(() => {
+					// this.audioObjAndroid.onPlay(() => {
 						// console.log('开始播放');
-					});
+					// });
 					this.audioObjAndroid.onEnded(() => {
 						index++;
 						if (musicList[index]) {
@@ -900,8 +902,10 @@
 							this.audioObjAndroid.src = src;
 							this.audioObjAndroid.onCanplay(() => {
 								this.audioObjAndroid.play(); // 启动音频，也就是播放
+								this.audioObjAndroid.offCanplay();
 							});
 						} else if (this.audioObjAndroid) {
+							this.audioObjAndroid.offCanplay();
 							this.audioObjAndroid.stop();
 							this.audioObjAndroid.destroy();
 							this.audioObjAndroid = null;
@@ -913,6 +917,7 @@
 					this.audioObjAndroid.onError((e) => {
 						console.log('audioObjAndroid onError', JSON.stringify(e), this.audioObjAndroid.src);
 						if (this.audioObjAndroid) {
+							this.audioObjAndroid.offCanplay();
 							this.audioObjAndroid.stop();
 							this.audioObjAndroid.destroy();
 							this.audioObjAndroid = null;
@@ -921,6 +926,7 @@
 				} catch (e) {
 					console.log('audioObjAndroid catchError', e);
 					if (this.audioObjAndroid) {
+						this.audioObjAndroid.offCanplay();
 						this.audioObjAndroid.stop();
 						this.audioObjAndroid.destroy();
 						this.audioObjAndroid = null;
@@ -1048,9 +1054,9 @@
 			 * 初始化讯飞tts语音合成工具（未完成）
 			 */
 			initVoicePlayer() {
-				if (plus.os.name !== 'Android') {
-					return;
-				}
+				// if (plus.os.name !== 'Android') {
+				// 	return;
+				// }
 				// this.receiver = plus.android.implements('com.iflytek.cloud.SynthesizerListener', {
 				// 	// onEvent: function(int eventType, int arg1, int arg2, Bundle obj) {
 				// 	// 	console.log("onEvent");
@@ -1086,12 +1092,12 @@
 				// this.play = SynthesizerPlayer.createSynthesizer(main, null);
 
 
-				var main = plus.android.runtimeMainActivity();
-				var SpeechUtility = plus.android.importClass('com.iflytek.cloud.SpeechUtility');
-				SpeechUtility.createUtility(main, 'appid=5c2c6d5f');
-				var SynthesizerPlayer = plus.android.importClass('com.iflytek.cloud.SpeechSynthesizer');
-				this.play = SynthesizerPlayer.createSynthesizer(main, null);
-				play.startSpeaking(text, null);
+				// var main = plus.android.runtimeMainActivity();
+				// var SpeechUtility = plus.android.importClass('com.iflytek.cloud.SpeechUtility');
+				// SpeechUtility.createUtility(main, 'appid=5c2c6d5f');
+				// var SynthesizerPlayer = plus.android.importClass('com.iflytek.cloud.SpeechSynthesizer');
+				// this.play = SynthesizerPlayer.createSynthesizer(main, null);
+				// this.play.startSpeaking(text, null);
 
 			},
 			/**
@@ -1328,7 +1334,7 @@
 					} else {
 						let data = JSON.stringify([{
 							record: record,
-							type: 'yl',
+							type: 'ywqz',
 							date: datestr,
 						}]);
 						uni.setStorage({
