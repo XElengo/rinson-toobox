@@ -54,17 +54,18 @@
 			<br>
 			<text class="uni-subtitle">{{tipMessage}}</text>
 			<br v-if="tipMessage">
-			
+
 			<!-- 训练进度条 -->
 			<view class="progress-wrap" v-if="onStart">
-					<!-- 整体训练进度 -->
-					<view class="progress-row">
-						<text class="progress-label">总进度</text>
-						<view class="progress-track">
-							<view class="progress-fill progress-fill--total" :style="{ width: progressOverallPct + '%' }"></view>
+				<!-- 整体训练进度 -->
+				<view class="progress-row">
+					<text class="progress-label">总进度</text>
+					<view class="progress-track">
+						<view class="progress-fill progress-fill--total" :style="{ width: progressOverallPct + '%' }">
 						</view>
-						<text class="progress-pct">{{ groupNum }}/{{ formData.value3 }}组</text>
 					</view>
+					<text class="progress-pct">{{ groupNum }}/{{ formData.value3 }}组</text>
+				</view>
 				<view class="progress-row">
 					<text class="progress-label">组进度</text>
 					<view class="progress-track">
@@ -159,10 +160,9 @@
 				tipMessage3: '00:00:00', // 已锻炼时长
 				useSeconds: 0, // 锻炼已用秒数（暂停时保留）
 				_timerBaseTime: 0, // 当前计时段的起始时间戳（用于消除漂移）
-				_lastTickTime: 0,        // 上一次训练 tick 触发的时间戳（用于息屏补偿）
-				_groupAnnouncing: false,  // start() 已调用但播报音频尚未结束
-				_totalDoneReps: 0,        // 已完成的总次数（只增不减，用于总进度条）
-				_repSubProgress: 0,       // 当前次内进度（只增不减，用于总进度条）
+				_lastTickTime: 0, // 上一次训练 tick 触发的时间戳（用于息屏补偿）
+				_groupAnnouncing: false, // start() 已调用但播报音频尚未结束
+				_totalDoneReps: 0, // 已完成的总次数（只增不减，用于总进度条）
 				intervalCountdown: null, // 组歇/切换倒计时 interval（需统一管理）
 				onStop: false, // 当前是否正在暂停
 				onStart: false, // 当前是否正在进行锻炼
@@ -230,27 +230,19 @@
 				if (!max) return 0;
 				return Math.min(100, (this.echartsValue2 / max) * 100);
 			},
+
 			/**
 			 * 整体训练进度百分比
-			 * 基于 _totalDoneReps（只增不减），完全不依赖 groupNum/currentSide/timer
-			 * 左右切换、组歇、播报期间进度均不回退
+			 * 纯按已完成次数 / 总次数计算，不与时间或内圈进度关联
 			 */
 			progressOverallPct() {
 				if (!this.onStart) return 0;
-
-				const v1    = Number(this.formData.value1);
-				const v2    = Number(this.formData.value2);
-				const v3    = Number(this.formData.value3);
+				const v1 = Number(this.formData.value1);
+				const v3 = Number(this.formData.value3);
 				const hasLR = this.formData.value5 === 1;
-				const sides = hasLR ? 2 : 1;
-
-				const totalReps = v3 * v1 * sides;
+				const totalReps = v3 * v1 * (hasLR ? 2 : 1);
 				if (totalReps <= 0) return 0;
-
-				// 当前次内子进度：用 _repSubProgress（只增不减），不用 echartsValue2（会 reset 到 0）
-				const subProgress = (this.number > 0) ? this._repSubProgress : 0;
-
-				return Math.min(100, ((this._totalDoneReps + subProgress) / totalReps) * 100);
+				return Math.min(100, (this._totalDoneReps / totalReps) * 100);
 			},
 		},
 		methods: {
@@ -630,7 +622,6 @@
 					this.groupNum = 0;
 					this.currentSide = 1;
 					this._totalDoneReps = 0;
-					this._repSubProgress = 0;
 				}
 				this.startTime = null;
 				this.onStart = false;
@@ -846,7 +837,9 @@
 					} catch (e) {
 						console.log('audioObjAndroid catchError', e);
 						if (audio) {
-							try { audio.destroy(); } catch (e2) {}
+							try {
+								audio.destroy();
+							} catch (e2) {}
 						}
 						if (this.audioObjAndroid === audio) this.audioObjAndroid = null;
 						playNext(index + 1);
@@ -995,15 +988,12 @@
 					this.echartsInterval2 = null;
 				}
 				this.echartsValue2 = 0;
-				this._repSubProgress = 0;
 				this.echartsInterval2 = setInterval(() => {
 					const next = Number((this.echartsValue2 + 0.02).toFixed(2));
 					if (next >= Number(this.formData.value2)) {
-						// 到达顶点：次进度条 reset，但 _repSubProgress 保持最大值不下滑
 						this.echartsValue2 = 0;
 					} else {
 						this.echartsValue2 = next;
-						this._repSubProgress = next / Number(this.formData.value2);
 					}
 				}, 20);
 			},

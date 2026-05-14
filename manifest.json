@@ -2,8 +2,8 @@
     "name" : "rinson百宝箱",
     "appid" : "__UNI__BF08BA6",
     "description" : "个人工具箱应用，纯离线，不联网",
-    "versionName" : "1.0.2",
-    "versionCode" : 3,
+    "versionName" : "1.0.3",
+    "versionCode" : 4,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
@@ -78,7 +78,8 @@
                 }
             },
             "splashscreen" : {
-                "useOriginalMsgbox" : false
+                "useOriginalMsgbox" : true,
+                "androidStyle" : "common"
             }
         },
         "uniStatistics" : {
@@ -161,6 +162,11 @@
     "quickapp-webview-union" : {
         "uniStatistics" : {
             "enable" : false
+        }
+    },
+    "app-harmony" : {
+        "distribute" : {
+            "deviceTypes" : [ "phone", "tablet" ]
         }
     }
 }
