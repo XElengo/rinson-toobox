@@ -6,9 +6,18 @@
 			@click="toggleShow">{{showType === 1 ? '日历' : '列表'}}</button>
 
 		<view v-if="showType === 2">
-			<!-- 插入模式 -->
+			<!-- 插入模式 日历 -->
 			<uni-calendar class="uni-calendar--hook" :selected="info.selected" :showMonth="true" :lunar="info.lunar"
 				:insert="info.insert" @change="change" @monthSwitch="monthSwitch" />
+			<uni-list-item v-for="(item,index) in dayRecord" clickable @click="onClick(item, index)">
+				<template v-slot:header>
+					<view class="slot-box">
+						<i class="iconfont icon-yangwoqizuo" v-if="item.type === 'ywqz'"></i>
+						<i class="iconfont icon-yaling" v-if="item.type === 'yl'"></i>
+						{{item.record}}
+					</view>
+				</template>
+			</uni-list-item>
 		</view>
 		<uni-list v-if="showType === 1">
 			<uni-list-item v-for="(item,index) in record" clickable @click="onClick(item, index)">
@@ -24,7 +33,7 @@
 	</view>
 	<view>
 		<uni-popup ref="alertDialog" type="dialog">
-			<uni-popup-dialog :type="msgType" cancelText="关闭" confirmText="同意" content="是否确定要删除该记录？"
+			<uni-popup-dialog :type="msgType" cancelText="取消" confirmText="确定" content="是否确定要删除该记录？"
 				@confirm="dialogConfirm" @close="dialogClose"></uni-popup-dialog>
 		</uni-popup>
 	</view>
@@ -42,7 +51,8 @@
 					lunar: true,
 					insert: true,
 					selected: []
-				}
+				},
+				dayRecord: [],
 			}
 		},
 		onReady() {
@@ -59,7 +69,7 @@
 			setCalendarData() {
 				this.info.selected = [];
 				this.record.forEach(item => {
-					if(!item.date && item.record) {
+					if (!item.date && item.record) {
 						item.date = item.record.substring(0, 10);
 					}
 					if (item.date) {
@@ -132,6 +142,8 @@
 			},
 			change(e) {
 				// console.log('change 返回:', e)
+				this.dayRecord = this.record.filter(item => item.date == e.fulldate);
+				
 			},
 			monthSwitch(e) {
 				// console.log('monthSwitchs 返回:', e)
